@@ -1,0 +1,7 @@
+[Desktop Entry]
+Comment=GXDE Clipboard
+Exec=/usr/bin/dde-clipboard
+Name=GXDE-Clipboard
+NoDisplay=true
+Type=Application
+X-GNOME-Autostart-enabled=true

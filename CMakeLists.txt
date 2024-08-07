@@ -143,6 +143,8 @@ endmacro(install_symlink)
 ## qm files
 file(GLOB QM_FILES "translations/*.qm")
 install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATADIR}/${BIN_NAME}/translations)
+install(FILES ${CMAKE_SOURCE_DIR}/gxde-clipboard.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
+install(FILES ${CMAKE_SOURCE_DIR}/gxde-clipboard.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/../etc/xdg/autostart)
 
 configure_file(
     misc/dde-clipboard.service.in
