@@ -17,7 +17,7 @@ Build-Depends: debhelper (>= 8.0.0),
  libdwayland-dev,
  libkf5wayland-dev,
  systemd,
- systemd-dev
+ systemd-dev | libsystemd-dev
 Standards-Version: 3.9.5
 Homepage: https://github.com/linuxdeepin/dde-clipboard
 
