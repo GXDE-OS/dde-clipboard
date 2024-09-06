@@ -1,8 +1,14 @@
-dde-clipboard (1:6.0.11gxde1) UNRELEASED; urgency=medium
+dde-clipboard (1:6.0.12gxde1) UNRELEASED; urgency=medium
 
   * Non-maintainer upload.
 
- -- gfdgd_xi <3025613752@qq.com>  Wed, 07 Aug 2024 14:05:01 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Fri, 06 Sep 2024 20:16:50 +0800
+
+dde-clipboard (1:6.0.12) unstable; urgency=medium
+
+  * fix: window removes its own display animation (#170)(Issue: 9728)
+
+ -- Deepin Packages Builder <packages@deepin.org>  Thu, 29 Aug 2024 10:53:46 +0800
 
 dde-clipboard (1:6.0.11) unstable; urgency=medium
 
