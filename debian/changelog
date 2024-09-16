@@ -1,8 +1,8 @@
-dde-clipboard (1:6.0.12gxde1) UNRELEASED; urgency=medium
+dde-clipboard (1:6.0.13) unstable; urgency=medium
 
-  * Non-maintainer upload.
+  * fix: clipboard background transparent
 
- -- gfdgd_xi <3025613752@qq.com>  Fri, 06 Sep 2024 20:16:50 +0800
+ -- xionglinlin <xionglinlin@uniontech.com>  Wed, 11 Sep 2024 15:30:56 +0800
 
 dde-clipboard (1:6.0.12) unstable; urgency=medium
 
