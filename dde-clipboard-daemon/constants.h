@@ -34,10 +34,6 @@ const static int ContentMargin = 21;
 const static int TextContentTopMargin = 20;
 const static int AnimationTime = 300;           //ms
 
-// Clipboard protocols
-const static int X11_PROTOCOL = 0;
-const static int WAYLAND_PROTOCOL = 1;
-
 static const QString DBusClipBoardService = "org.deepin.dde.Clipboard1";
 static const QString DBusClipBoardPath = "/org/deepin/dde/Clipboard1";
 
