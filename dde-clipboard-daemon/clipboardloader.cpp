@@ -15,9 +15,6 @@
 
 const QString PixCacheDir = QStringLiteral("/clipboard-pix");  // 图片缓存目录名
 const int MAX_BETYARRAY_SIZE = 10*1024*1024;    // 最大支持的文本大小
-const int X11_PROTOCOL = 0;                     // x11协议
-const int WAYLAND_PROTOCOL = 1;                 // wayland协议
-
 QByteArray Info2Buf(const ItemInfo &info)
 {
     QByteArray buf;
@@ -89,18 +86,17 @@ ClipboardLoader::ClipboardLoader(QObject *parent)
     , m_board(nullptr)
     , m_waylandCopyClient(nullptr)
 {
-    if (qEnvironmentVariable("XDG_SESSION_TYPE").contains("wayland")) {
+    const bool isWayland = qEnvironmentVariable("XDG_SESSION_TYPE").contains("wayland");
+    
+    if (isWayland) {
         m_waylandCopyClient = new WaylandCopyClient(this);
         m_waylandCopyClient->init();
-
-        connect(m_waylandCopyClient, &WaylandCopyClient::dataChanged, this, [this] {
-            this->doWork(WAYLAND_PROTOCOL);
-        });
+        connect(m_waylandCopyClient, &WaylandCopyClient::dataChanged, 
+            this, [this] { this->doWork(WAYLAND_PROTOCOL); });
     } else {
         m_board = qApp->clipboard();
-        connect(m_board, &QClipboard::dataChanged, this, [this] {
-            this->doWork(X11_PROTOCOL);
-        });
+        connect(m_board, &QClipboard::dataChanged, 
+            this, [this] { this->doWork(X11_PROTOCOL); });
     }
     QDir dir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + PixCacheDir);
     if (dir.exists() && dir.removeRecursively()) {
