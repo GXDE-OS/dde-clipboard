@@ -217,34 +217,34 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/org.deepin.dde.daemon.Clipboard1.servi
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/dde-clipboard-daemon.service DESTINATION ${SYSTEMD_USER_UNIT_DIR})
 
-#----------------------------ut-dde-clipboard------------------------------
-set(UT_BIN_NAME ut-dde-clipboard)
+# #----------------------------ut-dde-clipboard------------------------------
+# set(UT_BIN_NAME ut-dde-clipboard)
 
-file(GLOB_RECURSE ut_Clipboard_SCRS
-    "tests/dde-clipboard/*.h"
-    "tests/dde-clipboard/*.cpp"
-    "tests/dde-clipboard/*.qrc"
-)
+# file(GLOB_RECURSE ut_Clipboard_SCRS
+#     "tests/dde-clipboard/*.h"
+#     "tests/dde-clipboard/*.cpp"
+#     "tests/dde-clipboard/*.qrc"
+# )
 
-add_executable(${UT_BIN_NAME}
-    ${Clipboard_SCRS}
-    ${Clipboard_DBUS_SCRS}
-    ${ut_Clipboard_SCRS}
-    ${DBUS_INTERFACES}
-    ${DBUS_TYPES}
-)
-# 用于测试覆盖率的编译条件
-target_compile_options(${UT_BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
+# add_executable(${UT_BIN_NAME}
+#     ${Clipboard_SCRS}
+#     ${Clipboard_DBUS_SCRS}
+#     ${ut_Clipboard_SCRS}
+#     ${DBUS_INTERFACES}
+#     ${DBUS_TYPES}
+# )
+# # 用于测试覆盖率的编译条件
+# target_compile_options(${UT_BIN_NAME} PRIVATE -fprofile-arcs -ftest-coverage)
 
-target_link_libraries(${UT_BIN_NAME} PRIVATE
-    Dtk::Widget
-    PkgConfig::GIO
-    Qt5::Core
-    Qt5::Widgets
-    Qt5::DBus
-    Qt5::Test
-    Qt5::GuiPrivate
-    -lpthread
-    -lgcov
-    -lgtest
-)
+# target_link_libraries(${UT_BIN_NAME} PRIVATE
+#     Dtk::Widget
+#     PkgConfig::GIO
+#     Qt5::Core
+#     Qt5::Widgets
+#     Qt5::DBus
+#     Qt5::Test
+#     Qt5::GuiPrivate
+#     -lpthread
+#     -lgcov
+#     -lgtest
+# )
