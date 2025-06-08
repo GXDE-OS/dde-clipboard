@@ -26,7 +26,7 @@ Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
  deepin-daemon,
- startdde,
+ startgxde,
  gxde-api
 Description: deepin desktop-environment - clipboard module
  Clipboard module of deepin desktop-environment

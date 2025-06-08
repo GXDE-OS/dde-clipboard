@@ -1,9 +1,10 @@
-dde-clipboard (1:6.0.14) UNRELEASED; urgency=medium
+dde-clipboard (1:6.0.15) UNRELEASED; urgency=medium
 
   * dde-daemon=>deepin-daemon
   * dde-api=>gxde-api
+  * startdde=>startgxde
 
- -- gfdgd_xi <3025613752@qq.com>  Sun, 08 Jun 2025 12:10:55 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Mon, 09 Jun 2025 07:45:28 +0800
 
 dde-clipboard (1:6.0.13-1) unstable; urgency=medium
 
