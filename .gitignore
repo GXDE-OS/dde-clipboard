@@ -5,3 +5,7 @@ build*/
 .vscode/
 *.user
 .cache
+
+.auto-coder/
+/actions/
+/output.txt
