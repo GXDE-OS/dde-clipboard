@@ -1,7 +1,7 @@
 Source: dde-clipboard
 Section: admin
 Priority: optional
-Maintainer: Deepin Sysdev <sysdev@deepin.com>
+Maintainer: gfdgd xi <3025613752@qq.com>
 Build-Depends: debhelper (>= 8.0.0),
  pkg-config,
  cmake,
@@ -28,5 +28,6 @@ Depends: ${shlibs:Depends},
  deepin-daemon,
  startgxde,
  gxde-api
+Recommends: gxde-desktop
 Description: deepin desktop-environment - clipboard module
  Clipboard module of deepin desktop-environment
