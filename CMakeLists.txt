@@ -39,6 +39,7 @@ endif ()
 find_package(PkgConfig REQUIRED)
 find_package(Dtk COMPONENTS Widget Core REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui Widgets DBus Test Concurrent REQUIRED)
+#find_package(DdeTrayLoader REQUIRED)
 
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})

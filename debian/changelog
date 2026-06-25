@@ -1,4 +1,4 @@
-dde-clipboard (1:6.0.15) UNRELEASED; urgency=medium
+dde-clipboard (1:6.0.17) UNRELEASED; urgency=medium
 
   * dde-daemon=>deepin-daemon
   * dde-api=>gxde-api
