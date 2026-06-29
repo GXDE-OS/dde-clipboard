@@ -15,7 +15,9 @@ Build-Depends: debhelper (>= 8.0.0),
  extra-cmake-modules,
  kwayland-dev,
  systemd,
- systemd-dev | libsystemd-dev
+ systemd-dev | libsystemd-dev,
+ libcups2-dev,
+ libxcb-xkb-dev,
 Standards-Version: 3.9.5
 Homepage: https://github.com/linuxdeepin/dde-clipboard
 
