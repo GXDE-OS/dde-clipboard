@@ -19,7 +19,7 @@
 #include <DRegionMonitor>
 #include <DDBusInterface>
 #include <DPlatformWindowHandle>
-#include <DApplicationHelper>
+#include <DGuiApplicationHelper>
 
 #include "monitor_interface.h"
 #include "dock_interface.h"

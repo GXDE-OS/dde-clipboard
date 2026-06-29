@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "readpipedatatask.h"
+#include "datacontroloffer.h"
 
 #include <QDebug>
 #include <QFile>
 #include <utility>
 
-#include <DWayland/Client/connection_thread.h>
-#include <DWayland/Client/datacontroloffer.h>
+#include <KWayland/Client/connection_thread.h>
 
 #include <QtConcurrent>
 
@@ -45,7 +45,6 @@ void ReadPipeDataTask::run()
         return;
     }
 
-    // 根据mime类取数据，写入pipe中
     m_pOffer->receive(m_mimeType, pipeFds[1]);
     m_pConnectionThread->roundtrip();
     close(pipeFds[1]);
@@ -98,5 +97,3 @@ bool ReadPipeDataTask::readData(int fd, QByteArray &data)
 
     return true;
 }
-
-

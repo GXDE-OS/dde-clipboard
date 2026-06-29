@@ -29,10 +29,6 @@ public:
 
 signals:
     void dataReady(qint64, const QString &, const QByteArray &);
-    // In some applications like chrome, when it sends data, seems kwin cannot handle the request good enough, sometimes also firefox
-    // then sometimes it will block in the action of reading pipeline
-    // ReadPipeDataTask will be auto deleted if its task is finished, but if the action is blocked, it will be alive.
-    // Here, if next request of dataOffer comes, and if the task never ends, it will force to close the pipeline, make pipeline read action finished
     void forceClosePipeLine();
 
 private:

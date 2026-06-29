@@ -37,29 +37,28 @@ endif ()
 
 # Find the library
 find_package(PkgConfig REQUIRED)
-find_package(Dtk COMPONENTS Widget Core REQUIRED)
-find_package(Qt5 COMPONENTS Core Gui Widgets DBus Test Concurrent REQUIRED)
-#find_package(DdeTrayLoader REQUIRED)
+find_package(Dtk6 COMPONENTS Widget Core Gui REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets DBus Test Concurrent REQUIRED)
 
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
-find_package(DWayland REQUIRED)
+find_package(KWayland REQUIRED)
 
-pkg_check_modules(GIO REQUIRED IMPORTED_TARGET gio-qt)
+pkg_check_modules(GIO REQUIRED IMPORTED_TARGET gio-qt6)
 
 if (NOT DEFINED SYSTEMD_USER_UNIT_DIR)
     pkg_get_variable(SYSTEMD_USER_UNIT_DIR systemd systemduserunitdir)
 endif()
 
-find_package(DtkTools REQUIRED)
+find_package(Dtk6Tools REQUIRED)
 function(generation_dbus_adaptor xml class_name class_file option)
-    execute_process(COMMAND qdbusxml2cpp ${option} -a ${class_file} -c ${class_name} ${xml}
+    execute_process(COMMAND /usr/lib/qt6/bin/qdbusxml2cpp ${option} -a ${class_file} -c ${class_name} ${xml}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endfunction(generation_dbus_adaptor)
 
 set(DBUS_INTERFACE ${PROJECT_SOURCE_DIR}/dbus/interface)
 function(generation_dbus_interface xml class_name class_file)
-    execute_process(COMMAND ${DTK_XML2CPP} -c ${class_name} -p ${class_file} ${xml}
+    execute_process(COMMAND /usr/libexec/dtk6/DCore/bin/qdbusxml2cpp-fix -c ${class_name} -p ${class_file} ${xml}
         WORKING_DIRECTORY ${DBUS_INTERFACE})
 endfunction(generation_dbus_interface)
 
@@ -67,7 +66,8 @@ include_directories(
     dde-clipboard
     dde-clipboard/dbus
     dde-clipboard/displaymanager
-    dde-clipboardloader
+    dde-clipboard-daemon
+    dde-clipboard-daemon/wayland-protocols
 )
 
 #----------------------------dde-clipboard------------------------------
@@ -125,14 +125,14 @@ add_executable(${BIN_NAME}
 )
 
 target_link_libraries(${BIN_NAME} PRIVATE
-    Dtk::Widget
-    Dtk::Core
+    Dtk6::Widget
+    Dtk6::Core
     PkgConfig::GIO
-    Qt5::Core
-    Qt5::Widgets
-    Qt5::GuiPrivate
-    Qt5::Gui
-    Qt5::DBus
+    Qt6::Core
+    Qt6::Widgets
+    Qt6::GuiPrivate
+    Qt6::Gui
+    Qt6::DBus
 )
 
 macro(install_symlink filepath wantsdir)
@@ -175,6 +175,7 @@ set(BIN_NAME dde-clipboard-daemon)
 file(GLOB_RECURSE dde-clipboard-daemon_SCRS
         "dde-clipboard-daemon/*.h"
         "dde-clipboard-daemon/*.cpp"
+        "dde-clipboard-daemon/*.c"
 )
 
 add_executable(${BIN_NAME}
@@ -182,12 +183,13 @@ add_executable(${BIN_NAME}
 )
 
 target_link_libraries(${BIN_NAME} PRIVATE
-  Qt5::Gui
-  Qt5::DBus
-  Qt5::Widgets
-  Dtk::Core
-  Qt5::Concurrent
-  DWaylandClient
+  Qt6::Gui
+  Qt6::DBus
+  Qt6::Widgets
+  Dtk6::Core
+  Qt6::Concurrent
+  Plasma::KWaylandClient
+  wayland-client
 )
 
 install(TARGETS ${BIN_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})

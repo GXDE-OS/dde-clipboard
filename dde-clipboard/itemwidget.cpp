@@ -247,7 +247,7 @@ void ItemWidget::initUI()
     titleWidget->setFixedHeight(ItemTitleHeight);
 
     QFont font = DFontSizeManager::instance()->t4();
-    font.setWeight(75);
+    font.setWeight(QFont::Bold);
     m_nameLabel->setFont(font);
     m_nameLabel->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     m_timeLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
@@ -261,7 +261,7 @@ void ItemWidget::initUI()
     //布局
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setSpacing(0);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(titleWidget, 0, Qt::AlignTop);
 
     QHBoxLayout *layout = new QHBoxLayout;
@@ -482,13 +482,6 @@ QList<QRectF> ItemWidget::getCornerGeometryList(const QRectF &baseRect, const QS
 
 QPixmap ItemWidget::getIconPixmap(const QIcon &icon, const QSize &size, qreal pixelRatio, QIcon::Mode mode, QIcon::State state)
 {
-    // ###(zccrs): 开启Qt::AA_UseHighDpiPixmaps后，QIcon::pixmap会自动执行 pixmapSize *= qApp->devicePixelRatio()
-    //             而且，在有些QIconEngine的实现中，会去调用另一个QIcon::pixmap，导致 pixmapSize 在这种嵌套调用中越来越大
-    //             最终会获取到一个是期望大小几倍的图片，由于图片太大，会很快将 QPixmapCache 塞满，导致后面再调用QIcon::pixmap
-    //             读取新的图片时无法缓存，非常影响图片绘制性能。此处在获取图片前禁用 Qt::AA_UseHighDpiPixmaps，自行处理图片大小问题
-    bool useHighDpiPixmaps = qApp->testAttribute(Qt::AA_UseHighDpiPixmaps);
-    qApp->setAttribute(Qt::AA_UseHighDpiPixmaps, false);
-
     QSize icon_size = icon.actualSize(size, mode, state);
 
     if (icon_size.width() > size.width() || icon_size.height() > size.height())
@@ -496,9 +489,6 @@ QPixmap ItemWidget::getIconPixmap(const QIcon &icon, const QSize &size, qreal pi
 
     QSize pixmapSize = icon_size * pixelRatio;
     QPixmap px = icon.pixmap(pixmapSize, mode, state);
-
-    // restore the value
-    qApp->setAttribute(Qt::AA_UseHighDpiPixmaps, useHighDpiPixmaps);
 
     if (px.width() > icon_size.width() * pixelRatio) {
         px.setDevicePixelRatio(px.width() * 1.0 / qreal(icon_size.width()));

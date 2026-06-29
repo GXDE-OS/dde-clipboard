@@ -13,6 +13,12 @@ struct DockRect
 public:
     DockRect();
     operator QRect() const;
+    bool operator==(const DockRect &other) const {
+        return x == other.x && y == other.y && w == other.w && h == other.h;
+    }
+    bool operator!=(const DockRect &other) const {
+        return !(*this == other);
+    }
 
     friend QDebug operator<<(QDebug debug, const DockRect &rect);
     friend const QDBusArgument &operator>>(const QDBusArgument &arg, DockRect &rect);

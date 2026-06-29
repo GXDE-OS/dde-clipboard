@@ -10,20 +10,23 @@
 #include <QPointer>
 #include <QMimeType>
 
+struct wl_registry;
+struct zwlr_data_control_manager_v1;
+
 namespace KWayland
 {
 namespace Client
 {
 class ConnectionThread;
 class EventQueue;
-class Registry;
-class Seat;
 class DataControlDeviceV1;
 class DataControlDeviceManager;
 class DataControlSourceV1;
 class DataControlOfferV1;
 } //Client
 } //KWayland
+
+struct wl_seat;
 
 class ReadPipeDataTask;
 
@@ -36,7 +39,7 @@ public:
     DMimeData();
     ~DMimeData();
     virtual QVariant retrieveData(const QString &mimeType,
-                                      QVariant::Type preferredType) const;
+                                      QMetaType preferredType) const;
 };
 
 class WaylandCopyClient : public QObject
@@ -52,7 +55,6 @@ public:
     void setMimeData(QMimeData *mimeData);
 
 private:
-    void setupRegistry(Registry *registry);
     QStringList filterMimeType(const QStringList &mimeTypeList);
     void sendOffer();
 
@@ -81,7 +83,7 @@ private:
     DataControlDeviceV1 *m_dataControlDevice;
     DataControlSourceV1 *m_copyControlSource;
     QPointer<QMimeData> m_mimeData;
-    Seat *m_seat;
+    wl_seat *m_seat;
 
     qint64 m_curOffer;
     QStringList m_curMimeTypes;

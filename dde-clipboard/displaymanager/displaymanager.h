@@ -17,7 +17,7 @@ public:
     static DisplayManager *instance();
 
 private:
-    explicit DisplayManager(QObject *parent = Q_NULLPTR);
+    explicit DisplayManager(QObject *parent = nullptr);
 
 private Q_SLOTS:
     void screenCountChanged();

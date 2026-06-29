@@ -16,6 +16,12 @@ struct ScreenRect
 public:
     ScreenRect();
     operator QRect() const;
+    bool operator==(const ScreenRect &other) const {
+        return x == other.x && y == other.y && w == other.w && h == other.h;
+    }
+    bool operator!=(const ScreenRect &other) const {
+        return !(*this == other);
+    }
 
     friend QDebug operator<<(QDebug debug, const ScreenRect &rect);
     friend const QDBusArgument &operator>>(const QDBusArgument &arg, ScreenRect &rect);

@@ -1,11 +1,12 @@
-dde-clipboard (1:6.0.17) UNRELEASED; urgency=medium
+dde-clipboard (1:6.6.0) UNRELEASED; urgency=medium
 
   * dde-daemon=>deepin-daemon
   * dde-api=>gxde-api
   * startdde=>startgxde
   * 新增推荐依赖 gxde-desktop
+  * Qt6 迁移
 
- -- gfdgd_xi <3025613752@qq.com>  Wed, 11 Jun 2025 12:26:22 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Mon, 29 Jun 2026 23:30:28 +0800
 
 dde-clipboard (1:6.0.13-1) unstable; urgency=medium
 

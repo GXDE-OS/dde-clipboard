@@ -17,7 +17,8 @@ struct TouchscreenInfo_V2 {
     QString serialNumber;
     QString UUID;
 
-    bool operator ==(const TouchscreenInfo_V2& info);
+    bool operator ==(const TouchscreenInfo_V2& info) const;
+    bool operator !=(const TouchscreenInfo_V2& info) const { return !(*this == info); }
 };
 
 typedef QList<TouchscreenInfo_V2> TouchscreenInfoList_V2;

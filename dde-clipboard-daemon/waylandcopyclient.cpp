@@ -4,6 +4,10 @@
 
 #include "waylandcopyclient.h"
 #include "readpipedatatask.h"
+#include "datacontroldevicemanager.h"
+#include "datacontroldevice.h"
+#include "datacontrolsource.h"
+#include "datacontroloffer.h"
 
 #include <QEventLoop>
 #include <QMimeData>
@@ -12,14 +16,11 @@
 #include <QImageWriter>
 #include <QMutexLocker>
 
-#include <DWayland/Client/connection_thread.h>
-#include <DWayland/Client/event_queue.h>
-#include <DWayland/Client/registry.h>
-#include <DWayland/Client/seat.h>
-#include <DWayland/Client/datacontroldevice.h>
-#include <DWayland/Client/datacontroldevicemanager.h>
-#include <DWayland/Client/datacontrolsource.h>
-#include <DWayland/Client/datacontroloffer.h>
+#include <KWayland/Client/connection_thread.h>
+#include <KWayland/Client/event_queue.h>
+
+#include <wayland-client.h>
+#include "data-control-client-protocol.h"
 
 #include <unistd.h>
 
@@ -91,9 +92,9 @@ DMimeData::~DMimeData()
 
 }
 
-QVariant DMimeData::retrieveData(const QString &mimeType, QVariant::Type preferredType) const
+QVariant DMimeData::retrieveData(const QString &mimeType, QMetaType preferredType) const
 {
-    QVariant data = QMimeData::retrieveData(mimeType,preferredType);
+    QVariant data = QMimeData::retrieveData(mimeType, preferredType);
     if (mimeType == QLatin1String("application/x-qt-image")) {
         if (data.isNull() || (data.userType() == QMetaType::QByteArray && data.toByteArray().isEmpty())) {
             // try to find an image
@@ -105,7 +106,7 @@ QVariant DMimeData::retrieveData(const QString &mimeType, QVariant::Type preferr
                 break;
             }
         }
-        int typeId = static_cast<int>(preferredType);
+        int typeId = preferredType.id();
         // we wanted some image type, but all we got was a byte array. Convert it to an image.
         if (data.userType() == QMetaType::QByteArray
             && (typeId == QMetaType::QImage || typeId == QMetaType::QPixmap || typeId == QMetaType::QBitmap))
@@ -160,35 +161,38 @@ void WaylandCopyClient::init()
         m_eventQueue = new EventQueue(this);
         m_eventQueue->setup(m_connectionThreadObject);
 
-        Registry *registry = new Registry(this);
-        setupRegistry(registry);
+        wl_display *display = m_connectionThreadObject->display();
+        wl_registry *registry = wl_display_get_registry(display);
+
+        static const wl_registry_listener s_registryListener = {
+            .global = [](void *data, wl_registry *reg, uint32_t name, const char *interface, uint32_t version) {
+                auto self = static_cast<WaylandCopyClient *>(data);
+                if (qstrcmp(interface, "wl_seat") == 0) {
+                    self->m_seat = static_cast<wl_seat *>(wl_registry_bind(reg, name, &wl_seat_interface, qMin(version, 7u)));
+                } else if (qstrcmp(interface, "zwlr_data_control_manager_v1") == 0) {
+                    auto manager = reinterpret_cast<zwlr_data_control_manager_v1 *>(
+                        wl_registry_bind(reg, name, &zwlr_data_control_manager_v1_interface, qMin(version, 2u)));
+                    self->m_dataControlDeviceManager = new DataControlDeviceManager(self);
+                    self->m_dataControlDeviceManager->setup(manager);
+                    if (self->m_seat) {
+                        self->m_dataControlDevice = self->m_dataControlDeviceManager->getDataDevice(self->m_seat, self);
+                        connect(self->m_dataControlDevice, &DataControlDeviceV1::selectionCleared, self, [self] {
+                            self->m_copyControlSource = nullptr;
+                        });
+                        connect(self->m_dataControlDevice, &DataControlDeviceV1::dataOffered, self, &WaylandCopyClient::onDataOffered);
+                    }
+                }
+            },
+            .global_remove = [](void *, wl_registry *, uint32_t) {}
+        };
+        wl_registry_add_listener(registry, &s_registryListener, this);
+
+        wl_display_roundtrip(display);
     }, Qt::QueuedConnection );
     m_connectionThreadObject->moveToThread(m_connectionThread);
     m_connectionThread->start();
     m_connectionThreadObject->initConnection();
     connect(this, &WaylandCopyClient::dataCopied, this, &WaylandCopyClient::onDataCopied);
-}
-
-void WaylandCopyClient::setupRegistry(Registry *registry)
-{
-    connect(registry, &Registry::seatAnnounced, this, [this, registry] (quint32 name, quint32 version) {
-        m_seat = registry->createSeat(name, version, this);
-    });
-
-    connect(registry, &Registry::dataControlDeviceManagerAnnounced, this, [this, registry] (quint32 name, quint32 version) {
-        m_dataControlDeviceManager = registry->createDataControlDeviceManager(name, version, this);
-        m_dataControlDevice = m_dataControlDeviceManager->getDataDevice(m_seat, this);
-
-        connect(m_dataControlDevice, &DataControlDeviceV1::selectionCleared, this, [this] {
-                m_copyControlSource = nullptr;
-        });
-
-        connect(m_dataControlDevice, &DataControlDeviceV1::dataOffered, this, &WaylandCopyClient::onDataOffered);
-    });
-
-    registry->setEventQueue(m_eventQueue);
-    registry->create(m_connectionThreadObject);
-    registry->setup();
 }
 
 void WaylandCopyClient::onDataOffered(KWayland::Client::DataControlOfferV1* offer)
@@ -270,7 +274,6 @@ void WaylandCopyClient::sendOffer()
     if (!m_copyControlSource)
         return;
 
-    // 新增接口
     m_dataControlDevice->setSelection(0, m_copyControlSource);
     if (m_mimeData->formats().isEmpty()) {
         return;

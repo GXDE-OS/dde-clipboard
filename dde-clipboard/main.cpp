@@ -17,11 +17,7 @@ DCORE_USE_NAMESPACE
 
 int main(int argc, char *argv[])
 {
-    DGuiApplicationHelper::setAttribute(DGuiApplicationHelper::UseInactiveColorGroup, false);
-    DGuiApplicationHelper::setAttribute(DGuiApplicationHelper::ColorCompositing, true);
-
     DApplication *app = DApplication::globalApplication(argc, argv);
-    DApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 
     app->setOrganizationName("deepin");
     app->setApplicationName("dde-clipboard");
