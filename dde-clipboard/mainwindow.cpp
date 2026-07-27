@@ -57,7 +57,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     geometryChanged();
     CompositeChanged();
-    registerMonitor();
+    if (qgetenv("XDG_SESSION_TYPE") != "wayland") {
+        registerMonitor();
+    }
 
     installEventFilter(this);
 }
