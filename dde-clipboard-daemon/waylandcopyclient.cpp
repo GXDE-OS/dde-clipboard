@@ -140,6 +140,7 @@ WaylandCopyClient::WaylandCopyClient(QObject *parent)
     , m_copyControlSource(nullptr)
     , m_mimeData(new DMimeData())
     , m_seat(nullptr)
+    , m_currentOffer(nullptr)
     , m_curOffer(0)
 {
 
@@ -149,6 +150,24 @@ WaylandCopyClient::~WaylandCopyClient()
 {
     m_connectionThread->quit();
     m_connectionThread->wait();
+
+    if (m_currentOffer) {
+        delete m_currentOffer;
+        m_currentOffer = nullptr;
+    }
+
+    if (m_dataControlDevice) {
+        m_dataControlDevice->destroy();
+        delete m_dataControlDevice;
+        m_dataControlDevice = nullptr;
+    }
+
+    if (m_dataControlDeviceManager) {
+        m_dataControlDeviceManager->release();
+        delete m_dataControlDeviceManager;
+        m_dataControlDeviceManager = nullptr;
+    }
+
     m_connectionThreadObject->deleteLater();
 
     if (m_mimeData)
@@ -158,6 +177,8 @@ WaylandCopyClient::~WaylandCopyClient()
 void WaylandCopyClient::init()
 {
     connect(m_connectionThreadObject, &ConnectionThread::connected, this, [this] {
+        qInfo() << "WaylandCopyClient: Connection established";
+
         m_eventQueue = new EventQueue(this);
         m_eventQueue->setup(m_connectionThreadObject);
 
@@ -169,17 +190,28 @@ void WaylandCopyClient::init()
                 auto self = static_cast<WaylandCopyClient *>(data);
                 if (qstrcmp(interface, "wl_seat") == 0) {
                     self->m_seat = static_cast<wl_seat *>(wl_registry_bind(reg, name, &wl_seat_interface, qMin(version, 7u)));
+                    qInfo() << "WaylandCopyClient: wl_seat found";
+
+                    if (self->m_dataControlDeviceManager && !self->m_dataControlDevice) {
+                        self->m_dataControlDevice = self->m_dataControlDeviceManager->getDataDevice(self->m_seat, nullptr);
+                        if (self->m_dataControlDevice) {
+                            qInfo() << "WaylandCopyClient: DataControlDevice created after wl_seat";
+                            self->connectDevice(self->m_dataControlDevice);
+                        }
+                    }
                 } else if (qstrcmp(interface, "zwlr_data_control_manager_v1") == 0) {
                     auto manager = reinterpret_cast<zwlr_data_control_manager_v1 *>(
                         wl_registry_bind(reg, name, &zwlr_data_control_manager_v1_interface, qMin(version, 2u)));
-                    self->m_dataControlDeviceManager = new DataControlDeviceManager(self);
+                    self->m_dataControlDeviceManager = new DataControlDeviceManager(nullptr);
                     self->m_dataControlDeviceManager->setup(manager);
-                    if (self->m_seat) {
-                        self->m_dataControlDevice = self->m_dataControlDeviceManager->getDataDevice(self->m_seat, self);
-                        connect(self->m_dataControlDevice, &DataControlDeviceV1::selectionCleared, self, [self] {
-                            self->m_copyControlSource = nullptr;
-                        });
-                        connect(self->m_dataControlDevice, &DataControlDeviceV1::dataOffered, self, &WaylandCopyClient::onDataOffered);
+                    qInfo() << "WaylandCopyClient: DataControlManager found";
+
+                    if (self->m_seat && !self->m_dataControlDevice) {
+                        self->m_dataControlDevice = self->m_dataControlDeviceManager->getDataDevice(self->m_seat, nullptr);
+                        if (self->m_dataControlDevice) {
+                            qInfo() << "WaylandCopyClient: DataControlDevice created after manager";
+                            self->connectDevice(self->m_dataControlDevice);
+                        }
                     }
                 }
             },
@@ -188,11 +220,40 @@ void WaylandCopyClient::init()
         wl_registry_add_listener(registry, &s_registryListener, this);
 
         wl_display_roundtrip(display);
+
+        if (m_dataControlDeviceManager && m_seat && !m_dataControlDevice) {
+            qInfo() << "WaylandCopyClient: Creating DataControlDevice after roundtrip";
+            m_dataControlDevice = m_dataControlDeviceManager->getDataDevice(m_seat, nullptr);
+            if (m_dataControlDevice) {
+                connectDevice(m_dataControlDevice);
+            }
+        }
+
+        if (!m_dataControlDevice) {
+            qWarning() << "WaylandCopyClient: Failed to create DataControlDevice";
+        } else {
+            qInfo() << "WaylandCopyClient: Initialization complete";
+        }
     }, Qt::QueuedConnection );
     m_connectionThreadObject->moveToThread(m_connectionThread);
     m_connectionThread->start();
     m_connectionThreadObject->initConnection();
     connect(this, &WaylandCopyClient::dataCopied, this, &WaylandCopyClient::onDataCopied);
+}
+
+void WaylandCopyClient::connectDevice(DataControlDeviceV1 *device)
+{
+    connect(device, &DataControlDeviceV1::selectionCleared, this, [this] {
+        m_copyControlSource = nullptr;
+    }, Qt::QueuedConnection);
+
+    connect(device, &DataControlDeviceV1::dataOffered, this, [this](DataControlOfferV1 *offer) {
+        if (m_currentOffer) {
+            m_currentOffer->deleteLater();
+        }
+        m_currentOffer = offer;
+        onDataOffered(offer);
+    }, Qt::QueuedConnection);
 }
 
 void WaylandCopyClient::onDataOffered(KWayland::Client::DataControlOfferV1* offer)

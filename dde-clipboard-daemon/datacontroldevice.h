@@ -31,8 +31,10 @@ private:
     static void listener_data_offer(void *data, zwlr_data_control_device_v1 *device, zwlr_data_control_offer_v1 *id);
     static void listener_selection(void *data, zwlr_data_control_device_v1 *device, zwlr_data_control_offer_v1 *id);
     static void listener_finished(void *data, zwlr_data_control_device_v1 *device);
+    static void listener_primary_selection(void *data, zwlr_data_control_device_v1 *device, zwlr_data_control_offer_v1 *id);
 
     zwlr_data_control_device_v1 *m_device;
+    DataControlOfferV1 *m_pendingOffer;
 };
 
 }

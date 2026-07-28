@@ -57,6 +57,7 @@ public:
 private:
     QStringList filterMimeType(const QStringList &mimeTypeList);
     void sendOffer();
+    void connectDevice(DataControlDeviceV1 *device);
 
 Q_SIGNALS:
     // when new source in , send dataChanged
@@ -85,6 +86,7 @@ private:
     QPointer<QMimeData> m_mimeData;
     wl_seat *m_seat;
 
+    DataControlOfferV1 *m_currentOffer;
     qint64 m_curOffer;
     QStringList m_curMimeTypes;
 };
