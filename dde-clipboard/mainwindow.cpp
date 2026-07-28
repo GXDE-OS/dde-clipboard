@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     geometryChanged();
     CompositeChanged();
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland") {
+    if (!Globals::isWayland()) {
         registerMonitor();
     }
 
@@ -197,6 +197,10 @@ void MainWindow::initUI()
 {
     setWindowFlags(Qt::FramelessWindowHint | Qt::Tool  | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowStaysOnTopHint);
     setAttribute(Qt::WA_TranslucentBackground);
+
+    if (Globals::isWayland()) {
+        DGuiApplicationHelper::instance()->setPaletteType(DGuiApplicationHelper::ColorType::DarkType);
+    }
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->setContentsMargins(0, 0, 0, 10);

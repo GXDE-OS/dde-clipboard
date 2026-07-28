@@ -12,6 +12,7 @@
 #include <QBitmap>
 #include <QTimer>
 #include <QIcon>
+#include <QApplication>
 
 #define MAX(a,b) ((a) > (b) ? (a):(b))
 #define MIN(a,b) ((a) < (b) ? (a):(b))
@@ -128,6 +129,14 @@ inline QPixmap GetRoundPixmap(const QPixmap &pix, QColor borderColor)
     QPixmap image = pixmap;
     image.setMask(mask);
     return image;
+}
+
+static bool isWayland()
+{
+    //! 该函数只能在QApplication之后调用才能返回有效的值，在此之前platformName会返回空值
+    static bool wayland = QApplication::platformName() == "wayland";
+
+    return wayland;
 }
 } ;
 #endif // CONSTANTS_H
