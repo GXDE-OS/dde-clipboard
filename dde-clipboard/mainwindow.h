@@ -141,12 +141,13 @@ private:
     int getX() const { return this->pos().x(); }
 protected:
     /*!
-     * \~chinese \name initConnect
-     * \~chinese \brief 重写mouseMoveEvent事件禁止窗口被移动
-     */
+    * \~chinese \name initConnect
+    * \~chinese \brief 重写mouseMoveEvent事件禁止窗口被移动
+    */
     virtual void mouseMoveEvent(QMouseEvent *event) override;
     void showEvent(QShowEvent *event) override;
     void hideEvent(QHideEvent *event) override;
+    bool event(QEvent *event) override;
 
 private:
     DBusDisplay *m_displayInter;

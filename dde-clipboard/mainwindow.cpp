@@ -14,6 +14,7 @@
 #include <QScreen>
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
+#include <QEvent>
 
 #include <DFontSizeManager>
 #include <DGuiApplicationHelper>
@@ -111,6 +112,9 @@ void MainWindow::showAni()
         move(m_rect.x() + WindowMargin, m_rect.y());
         setFixedWidth(m_rect.width());
         show();
+        if (Globals::isWayland()) {
+            activateWindow();
+        }
         return;
     }
 
@@ -118,6 +122,9 @@ void MainWindow::showAni()
     setFixedWidth(0);
 
     show();
+    if (Globals::isWayland()) {
+        activateWindow();
+    }
     m_aniGroup->setDirection(QAbstractAnimation::Backward);
     m_aniGroup->start();
 }
@@ -241,7 +248,11 @@ void MainWindow::initUI()
     layout->addWidget(m_content);
 
     setMaskAlpha(static_cast<int>(this->opacity() * 255));
-    setFocusPolicy(Qt::NoFocus);
+    if (Globals::isWayland()) {
+        setFocusPolicy(Qt::StrongFocus);
+    } else {
+        setFocusPolicy(Qt::NoFocus);
+    }
     
     m_trickTimer->setInterval(300);
     m_trickTimer->setSingleShot(true);
@@ -442,4 +453,15 @@ void MainWindow::hideEvent(QHideEvent *event)
 {
     Q_EMIT clipboardVisibleChanged(false);
     DBlurEffectWidget::hideEvent(event);
+}
+
+bool MainWindow::event(QEvent *event)
+{
+    if (Globals::isWayland() && event->type() == QEvent::WindowDeactivate) {
+        if (isVisible()) {
+            hideAni();
+        }
+    }
+
+    return DBlurEffectWidget::event(event);
 }
