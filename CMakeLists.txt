@@ -54,15 +54,36 @@ if (NOT DEFINED SYSTEMD_USER_UNIT_DIR)
     pkg_get_variable(SYSTEMD_USER_UNIT_DIR systemd systemduserunitdir)
 endif()
 
-find_package(Dtk6Tools REQUIRED)
+find_program(QT_QDBUSXML2CPP_EXECUTABLE
+    NAMES qdbusxml2cpp
+    HINTS
+        /usr/lib/qt6/bin
+        /usr/lib/qt/bin
+)
+
+if (NOT QT_QDBUSXML2CPP_EXECUTABLE)
+    message(FATAL_ERROR "qdbusxml2cpp not found")
+endif()
+
+find_program(DTK_XML2CPP
+    NAMES qdbusxml2cpp-fix
+    HINTS
+        /usr/libexec/dtk6/DCore/bin
+        /usr/lib/dtk6/DCore/bin
+)
+
+if (NOT DTK_XML2CPP)
+    set(DTK_XML2CPP ${QT_QDBUSXML2CPP_EXECUTABLE})
+endif()
+
 function(generation_dbus_adaptor xml class_name class_file option)
-    execute_process(COMMAND /usr/lib/qt6/bin/qdbusxml2cpp ${option} -a ${class_file} -c ${class_name} ${xml}
+    execute_process(COMMAND ${QT_QDBUSXML2CPP_EXECUTABLE} ${option} -a ${class_file} -c ${class_name} ${xml}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endfunction(generation_dbus_adaptor)
 
 set(DBUS_INTERFACE ${PROJECT_SOURCE_DIR}/dbus/interface)
 function(generation_dbus_interface xml class_name class_file)
-    # DTK_XML2CPP 来自 Dtk6Tools，各发行版的安装路径不同（Debian 为 /usr/libexec，Arch 为 /usr/lib）
+    # 各发行版安装路径不同（Debian 为 /usr/libexec，Arch 为 /usr/lib），缺失时回退到 qdbusxml2cpp
     execute_process(COMMAND ${DTK_XML2CPP} -c ${class_name} -p ${class_file} ${xml}
         WORKING_DIRECTORY ${DBUS_INTERFACE})
 endfunction(generation_dbus_interface)
