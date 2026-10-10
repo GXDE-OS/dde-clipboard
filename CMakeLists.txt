@@ -40,6 +40,10 @@ find_package(PkgConfig REQUIRED)
 find_package(Dtk6 COMPONENTS Widget Core Gui REQUIRED)
 find_package(Qt6 COMPONENTS Core Gui Widgets DBus Test Concurrent REQUIRED)
 
+if(NOT TARGET Qt6::GuiPrivate)
+    find_package(Qt6 REQUIRED COMPONENTS GuiPrivate)
+endif()
+
 find_package(ECM REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 find_package(KWayland REQUIRED)
@@ -58,7 +62,8 @@ endfunction(generation_dbus_adaptor)
 
 set(DBUS_INTERFACE ${PROJECT_SOURCE_DIR}/dbus/interface)
 function(generation_dbus_interface xml class_name class_file)
-    execute_process(COMMAND /usr/libexec/dtk6/DCore/bin/qdbusxml2cpp-fix -c ${class_name} -p ${class_file} ${xml}
+    # DTK_XML2CPP 来自 Dtk6Tools，各发行版的安装路径不同（Debian 为 /usr/libexec，Arch 为 /usr/lib）
+    execute_process(COMMAND ${DTK_XML2CPP} -c ${class_name} -p ${class_file} ${xml}
         WORKING_DIRECTORY ${DBUS_INTERFACE})
 endfunction(generation_dbus_interface)
 
