@@ -1,0 +1,31 @@
+# Maintainer: CharOfString <root@charofstring.cc>
+pkgname=dde-clipboard-git
+pkgver=6.6.2
+pkgrel=1
+pkgdesc='Clipboard manager for GXDE'
+arch=('x86_64' 'aarch64')
+url="https://github.com/GXDE-OS/dde-clipboard"
+license=('GPL-3.0-or-later' 'CC-BY-4.0' 'CC0-1.0')
+depends=('dtk6core-git' 'dtk6gui-git' 'dtk6widget-git' 'qt6-base' 'kwayland' 'gio-qt' 'wayland' 'libgcc'
+         'libstdc++' 'glibc')
+makedepends=('git' 'cmake' 'ninja' 'pkgconf' 'qt6-tools' 'qt6-wayland' 'extra-cmake-modules' 'systemd')
+provides=('dde-clipboard')
+conflicts=('dde-clipboard')
+source=()
+sha512sums=()
+
+# 直接使用 PKGBUILD 所在的 git 仓库作为源码 ・ Build from the git checkout this PKGBUILD lives in.
+_srcroot() {
+  git -C "$startdir" rev-parse --show-toplevel
+}
+
+build() {
+  cmake -B build -S "$(_srcroot)" -GNinja \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}
