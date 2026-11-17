@@ -1,16 +1,17 @@
 # Maintainer: CharOfString <root@charofstring.cc>
-pkgname=dde-clipboard-git
+pkgname=dde-clipboard
 pkgver=6.6.2
 pkgrel=1
 pkgdesc='Clipboard manager for GXDE'
 arch=('x86_64' 'aarch64')
 url="https://github.com/GXDE-OS/dde-clipboard"
 license=('GPL-3.0-or-later' 'CC-BY-4.0' 'CC0-1.0')
-depends=('dtk6core-git' 'dtk6gui-git' 'dtk6widget-git' 'qt6-base' 'kwayland' 'gio-qt' 'wayland' 'libgcc'
+depends=('gxde-dtk6core' 'gxde-dtk6gui' 'gxde-dtk6widget' 'qt6-base' 'kwayland' 'gio-qt' 'wayland' 'libgcc'
          'libstdc++' 'glibc')
 makedepends=('git' 'cmake' 'ninja' 'pkgconf' 'qt6-tools' 'qt6-wayland' 'extra-cmake-modules' 'systemd')
-provides=('dde-clipboard')
-conflicts=('dde-clipboard')
+provides=("dde-clipboard-git=$pkgver")
+conflicts=('dde-clipboard-git')
+replaces=('dde-clipboard-git')
 source=()
 sha512sums=()
 
